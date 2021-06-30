@@ -1,9 +1,10 @@
 const router = require('express').Router();
-const { UserModel } = require('../models');
+const { UserModel, GigModel } = require('../models');
 const { UniqueConstraintError } = require('sequelize/lib/errors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const validateSession = require('../middleware/validate-session')
+const validateSession = require('../middleware/validate-session');
+const validateRole = require('../middleware/validate-role');
 
 // register user
 router.post('/register', async(req, res)=>{
@@ -18,13 +19,13 @@ router.post('/register', async(req, res)=>{
             zipCode,
             instrument,
             genre,
-            admin,
+            admin: ('User')
             // bio,
             // socialLinks,
             // posts,
         });
 
-        let token = jwt.sign({ id: User.id }, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24})
+        let token = jwt.sign({ id: User.id, role: User.admin }, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24})
 
         res.status(201).json({
             msg: 'User successfully registered!',
@@ -58,7 +59,7 @@ router.post('/login', async (req, res) =>{
         if(loginUser) {
             let passwordComparison = await bcrypt.compare(password, loginUser.password);
             if(passwordComparison){
-                let token = jwt.sign({ id: loginUser.id }, process.env.JWT_SECRET, { expiresIn: 60 * 60 * 24})
+                let token = jwt.sign({ id: loginUser.id, role: loginUser.admin }, process.env.JWT_SECRET, { expiresIn: 60 * 60 * 24})
                 res.status(200).json({
                     user: loginUser,
                     message: "User successfully logged in!",
@@ -82,11 +83,16 @@ router.post('/login', async (req, res) =>{
 });
 
 // Get User by id
-router.get('/:id', async(req, res)=>{
+router.get('/view/:id', async(req, res)=>{
     const { id } = req.params;
     try {
         const thisUser = await UserModel.findOne({
-            where: { id: id}
+            where: { id: id},
+            include: [
+                {
+                    model: GigModel
+                }
+            ]
         });
         if(thisUser !== null ){
             res.status(200).json(thisUser)
@@ -98,10 +104,27 @@ router.get('/:id', async(req, res)=>{
     }
 })
 
-// update user by id (any user can edit any user, bad, don't know how to fix)
-router.put('/:id', validateSession, async(req, res)=>{
+// Get all users
+router.get('/view', async(req, res)=>{
+    try{
+        const allUsers = await UserModel.findAll({
+            include: [
+                {
+                    model: GigModel
+                }
+            ]
+        });
+        res.status(200).json(allUsers);
+    } catch (err) {
+        res.status(500).json({
+            msg: `Oh no! Server error: ${err}`
+        })
+    }
+})
+// update logged in user
+router.put('/edit', validateSession, async(req, res)=>{
     try {
-        const { firstName, lastName, emailAddress, password, zipCode, instrument, genre, admin, bio, socialLinks, posts } = req.body;
+        const { firstName, lastName, emailAddress, password, zipCode, instrument, genre, admin, bio, socialLinks } = req.body;
 
         const updatedUser = await UserModel.update({
             firstName,
@@ -114,7 +137,34 @@ router.put('/:id', validateSession, async(req, res)=>{
             admin,
             bio,
             socialLinks,
-            posts}, {where: {id: req.params.id}
+            }, {where: {id: req.user.id}
+        });
+        res.status(200).json({
+            msg: `User updated`,
+            updatedUser
+        });
+    } catch (err) {
+        res.status(500).json({msg: `Error: ${err}`})
+    }
+})
+// !ADMIN update user by id
+router.put('/edit/:id/admin', validateRole, async(req, res)=>{
+    const { id } = req.params
+    try {
+        const { firstName, lastName, emailAddress, password, zipCode, instrument, genre, admin, bio, socialLinks } = req.body;
+
+        const updatedUser = await UserModel.update({
+            firstName,
+            lastName,
+            emailAddress,
+            password,
+            zipCode,
+            instrument,
+            genre,
+            admin,
+            bio,
+            socialLinks,
+            }, {where: {id: id}
         });
         res.status(200).json({
             msg: `User updated`,
@@ -125,15 +175,18 @@ router.put('/:id', validateSession, async(req, res)=>{
     }
 })
 
-// delete by user id
-// works, but any user can delete any user (bad)
-// also, res turns back deletedUser: 1 when deleting user 3. Logged in as user 1.
-router.delete('/:id', validateSession, async(req, res)=>{
-    const { id } = req.params
+// delete by logged in user
+// !Need to make delete routes cascade delete
+router.delete('/delete', validateSession, async(req, res)=>{
 
     try {
         const deletedUser = await UserModel.destroy({
-            where: { id: id}
+            where: { id: req.user.id},
+            include: [
+                {
+                    model: GigModel
+                }
+            ]
         });
         res.status(200).json({
             msg: `User deleted (sad)`,
@@ -145,19 +198,26 @@ router.delete('/:id', validateSession, async(req, res)=>{
         })
     }
 })
+// ! ADMIN delete
+router.delete('/delete/:id/admin', validateRole, async(req, res)=>{
+    const { id } = req.params;
 
-//  user by instrument (don't know how?? should this be in params? body? at all????)
-// user by genre (see above)
-
-// Get all users
-// ! is not working, no idea why
-router.get('/all', async( res)=>{
-    try{
-        const allUsers = await UserModel.findAll();
-        res.status(200).json(allUsers);
+    try {
+        const deletedUser = await UserModel.destroy({
+            where: { id: id},
+            include: [
+                {
+                    model: GigModel
+                }
+            ]
+        });
+        res.status(200).json({
+            msg: `User deleted (sad)`,
+            deletedUser: deletedUser
+        })
     } catch (err) {
         res.status(500).json({
-            msg: `Oh no! Server error: ${err}`
+            msg: `Error: ${err}`
         })
     }
 })

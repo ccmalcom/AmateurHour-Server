@@ -9,8 +9,8 @@ const controllers = require('./controllers');
 
 app.use(middleware.headers);
 app.use('/user', controllers.userController);
-// app.use('/gig', controllers.gigController);
-// app.use('/comment', controllers.commentController);
+app.use('/gig', controllers.gigController);
+app.use('/comment', controllers.commentController);
 
 dbConnection.authenticate()
     .then(() => dbConnection.sync()) //inside dbconnection.sync({force: true}) to clear table [make sure you take it out before trying to use server]

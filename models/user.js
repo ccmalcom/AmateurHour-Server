@@ -44,10 +44,6 @@ const User = db.define('user', {
     socialLinks:{
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true,
-    },
-    // posts:{
-    //     type: DataTypes.ARRAY,
-    //     allowNull: true,
-    // }
+    }
 });
 module.exports = User;
