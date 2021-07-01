@@ -1,18 +1,18 @@
 const router = require('express').Router();
-const { GigModel, CommentModel } = require('../models');
+const { CommentModel } = require('../models');
 const validateSession = require('../middleware/validate-session');
 const validateRole = require('../middleware/validate-role');
 
 // create comment
-//? how to get this to automatically get gigId
 router.post('/new', validateSession, async(req, res) =>{
-    const { content } = req.body;
+    const { content, gigId } = req.body;
     const { id } = req.user;
 
     try {
         const Comment = await CommentModel.create({
             content,
-            userId: id
+            userId: id,
+            gigId: gigId
         });
         res.status(200).json({msg: `Comment Created`, Comment})
     } catch (err) {

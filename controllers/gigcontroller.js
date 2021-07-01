@@ -110,9 +110,8 @@ router.delete('/delete/:gigId', validateSession, async(req, res)=>{
             where: { userId: id, id: gigId }
         });
         res.status(200).json({
-            msg: `Gig ,deleted.`,
+            msg: `Gig deleted.`,
             deletedGig: deletedGig == 0? `none` : deletedGig
-
         })
     } catch (err) {
         res.status(500).json({msg: `Oh no, server error: ${err}`})
@@ -129,7 +128,6 @@ router.delete('/delete/:gigId/admin', validateRole, async(req, res)=>{
         res.status(200).json({
             msg: `Gig ,deleted.`,
             deletedGig: deletedGig == 0? `none` : deletedGig
-
         })
     } catch (err) {
         res.status(500).json({msg: `Oh no, server error: ${err}`})

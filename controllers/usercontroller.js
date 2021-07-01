@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { UserModel, GigModel } = require('../models');
+const { UserModel, GigModel, CommentModel } = require('../models');
 const { UniqueConstraintError } = require('sequelize/lib/errors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -180,17 +180,20 @@ router.put('/edit/:id/admin', validateRole, async(req, res)=>{
 router.delete('/delete', validateSession, async(req, res)=>{
 
     try {
+        const deletedComment = await CommentModel.destroy({
+            where: { userId: req.user.id }
+        });
+        const deletedGig = await GigModel.destroy({
+            where: { userId: req.user.id }
+        });
         const deletedUser = await UserModel.destroy({
             where: { id: req.user.id},
-            include: [
-                {
-                    model: GigModel
-                }
-            ]
         });
         res.status(200).json({
             msg: `User deleted (sad)`,
-            deletedUser: deletedUser
+            deletedUser: deletedUser,
+            deletedGig: deletedGig == 0 ? `no posts to delete` : deletedGig,
+            deletedComment: deletedComment == 0? `no comments to delete` : deletedComment,
         })
     } catch (err) {
         res.status(500).json({
@@ -201,19 +204,22 @@ router.delete('/delete', validateSession, async(req, res)=>{
 // ! ADMIN delete
 router.delete('/delete/:id/admin', validateRole, async(req, res)=>{
     const { id } = req.params;
-
+    
     try {
+        const deletedComment = await CommentModel.destroy({
+            where: { userId: id }
+        });
+        const deletedGig = await GigModel.destroy({
+            where: { userId: id }
+        });
         const deletedUser = await UserModel.destroy({
             where: { id: id},
-            include: [
-                {
-                    model: GigModel
-                }
-            ]
         });
         res.status(200).json({
             msg: `User deleted (sad)`,
-            deletedUser: deletedUser
+            deletedUser: deletedUser,
+            deletedGig: deletedGig == 0 ? `no posts to delete` : deletedGig,
+            deletedComment: deletedComment == 0? `no comments to delete` : deletedComment,
         })
     } catch (err) {
         res.status(500).json({
