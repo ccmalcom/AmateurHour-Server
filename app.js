@@ -13,7 +13,7 @@ app.use('/gig', controllers.gigController);
 app.use('/comment', controllers.commentController);
 
 dbConnection.authenticate()
-    .then(() => dbConnection.sync({force: true})) //inside dbconnection.sync({alter: true}) to clear table [make sure you take it out before trying to use server]
+    .then(() => dbConnection.sync()) //inside dbconnection.sync({alter: true}) to clear table [make sure you take it out before trying to use server]
     .then (() =>{
         app.listen(process.env.PORT, () => {
             console.log(`server is listening on port ${process.env.PORT}`);
