@@ -6,13 +6,14 @@ const validateRole = require('../middleware/validate-role');
 // create comment
 router.post('/new', validateSession, async(req, res) =>{
     const { content, gigId } = req.body;
-    const { id } = req.user;
+    const { id, fullName } = req.user;
 
     try {
         const Comment = await CommentModel.create({
             content,
             userId: id,
-            gigId: gigId
+            gigId: gigId,
+            posterName: fullName
         });
         res.status(200).json({msg: `Comment Created`, Comment})
     } catch (err) {

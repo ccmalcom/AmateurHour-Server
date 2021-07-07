@@ -21,6 +21,9 @@ const Gig = db.define('gig', {
     content:{
         type: DataTypes.STRING,
         allowNull: false
+    },
+    posterName:{
+        type: DataTypes.STRING
     }
 })
 

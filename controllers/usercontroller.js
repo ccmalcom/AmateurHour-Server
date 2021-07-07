@@ -25,7 +25,7 @@ router.post('/register', async(req, res)=>{
             // posts,
         });
 
-        let token = jwt.sign({ id: User.id, role: User.admin }, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24})
+        let token = jwt.sign({ id: User.id, role: User.admin, fullName: User.fullName }, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24})
 
         res.status(201).json({
             msg: 'User successfully registered!',
@@ -59,7 +59,7 @@ router.post('/login', async (req, res) =>{
         if(loginUser) {
             let passwordComparison = await bcrypt.compare(password, loginUser.password);
             if(passwordComparison){
-                let token = jwt.sign({ id: loginUser.id, role: loginUser.admin }, process.env.JWT_SECRET, { expiresIn: 60 * 60 * 24})
+                let token = jwt.sign({ id: loginUser.id, role: loginUser.admin, fullName: loginUser.fullName }, process.env.JWT_SECRET, { expiresIn: 60 * 60 * 24})
                 res.status(200).json({
                     user: loginUser,
                     message: "User successfully logged in!",
@@ -176,7 +176,6 @@ router.put('/edit/:id/admin', validateRole, async(req, res)=>{
 })
 
 // delete by logged in user
-// !Need to make delete routes cascade delete
 router.delete('/delete', validateSession, async(req, res)=>{
 
     try {

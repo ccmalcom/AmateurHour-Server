@@ -6,7 +6,7 @@ const validateRole = require('../middleware/validate-role');
 // create post
 router.post('/new', validateSession, async (req, res) => {
     let { location, title, instrument, genre, size, content } = req.body
-    let { id } = req.user
+    let { id, fullName } = req.user
 
     try {
         const Gig = await GigModel.create({
@@ -16,7 +16,8 @@ router.post('/new', validateSession, async (req, res) => {
             genre,
             size,
             content,
-            userId: id
+            userId: id,
+            posterName: fullName
         });
         res.status(200).json({
             msg: 'Gig posted! Woo hoo!',
