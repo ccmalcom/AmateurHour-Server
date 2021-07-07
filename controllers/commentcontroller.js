@@ -12,7 +12,7 @@ router.post('/new', validateSession, async(req, res) =>{
         const Comment = await CommentModel.create({
             content,
             userId: id,
-            gigId: gigId,
+            gigId,
             posterName: fullName
         });
         res.status(200).json({msg: `Comment Created`, Comment})
