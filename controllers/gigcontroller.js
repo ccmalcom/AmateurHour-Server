@@ -55,6 +55,20 @@ router.get('/view', validateSession, async (req, res) => {
     }
 })
 
+// view all by UserID
+router.get('/view/user/:userId', validateSession, async(req, res)=>{
+    const { userId } = req.params
+    try {
+        const userGigs = await GigModel.findAll({
+            where: {userId: userId},
+            include: [{model: CommentModel}]
+        });
+        res.status(200).json({userGigs})
+    } catch (err) {
+        res.status(500).json({msg: `Oh no, server error: ${err}`})
+    }
+})
+
 // edit post by id (only lets you edit your own posts)
 router.put('/edit/:gigId', validateSession, async (req, res) => {
     const { location, title, instrument, genre, size, content } = req.body;
