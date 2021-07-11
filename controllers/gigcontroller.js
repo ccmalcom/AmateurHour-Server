@@ -31,7 +31,7 @@ router.post('/new', validateSession, async (req, res) => {
 })
 
 // view post by id
-router.get('/view/:gigId', validateSession, async (req, res) => {
+router.get('/view/:gigId', async (req, res) => {
     const { gigId } = req.params;
     try {
         const thisGig = await GigModel.findOne({
@@ -44,7 +44,7 @@ router.get('/view/:gigId', validateSession, async (req, res) => {
     }
 })
 // view all posts
-router.get('/view', validateSession, async (req, res) => {
+router.get('/view', async (req, res) => {
     try {
         const allGigs = await GigModel.findAll({
             include: [{ model: CommentModel }]

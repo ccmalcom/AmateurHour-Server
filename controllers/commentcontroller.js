@@ -22,7 +22,7 @@ router.post('/new', validateSession, async(req, res) =>{
 })
 
 // view comment by id
-router.get('/view/:cid', validateSession, async(req, res)=>{
+router.get('/view/:cid', async(req, res)=>{
     const { cid } = req.params;
 
     try {
@@ -35,7 +35,7 @@ router.get('/view/:cid', validateSession, async(req, res)=>{
     }
 })
 // view all comments
-router.get('/view', validateSession, async(req, res)=>{
+router.get('/view', async(req, res)=>{
     try {
         const allComments = await CommentModel.findAll()
         res.status(200).json({ allComments })
