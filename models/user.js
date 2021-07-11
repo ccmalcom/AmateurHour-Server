@@ -34,7 +34,7 @@ const User = db.define('user', {
         allowNull: true,
     },
     admin:{
-        type: DataTypes.ENUM('Admin', 'User'),
+        type: DataTypes.ENUM('Admin', 'User', 'Test'),
         allowNull: false,
     },
     bio: {
