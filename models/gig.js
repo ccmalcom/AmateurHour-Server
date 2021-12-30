@@ -2,27 +2,27 @@ const { DataTypes } = require('sequelize');
 const db = require('../db');
 
 const Gig = db.define('gig', {
-    location:{
+    location: {
         type: DataTypes.STRING
     },
-    title:{
+    title: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    instrument:{
+    instrument: {
         type: DataTypes.ARRAY(DataTypes.STRING)
     },
-    genre:{
+    genre: {
         type: DataTypes.ARRAY(DataTypes.STRING)
     },
-    size:{
+    size: {
         type: DataTypes.INTEGER || DataTypes.STRING
     },
-    content:{
+    content: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    posterName:{
+    posterName: {
         type: DataTypes.STRING
     }
 })

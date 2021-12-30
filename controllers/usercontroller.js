@@ -19,7 +19,8 @@ router.post('/register', async(req, res)=>{
             zipCode,
             instrument,
             genre,
-            admin: ('User')
+            admin: ('User'),
+            socialimg:("https://res.cloudinary.com/dws3oicpm/image/upload/v1640897589/default-profile_yr4bjy.png")
             // bio,
             // socialLinks,
             // posts,
