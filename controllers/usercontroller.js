@@ -125,7 +125,7 @@ router.get('/view', async(req, res)=>{
 // update logged in user
 router.put('/edit', validateSession, async(req, res)=>{
     try {
-        const { firstName, lastName, emailAddress, password, zipCode, instrument, genre, admin, bio, socialLinks } = req.body;
+        const { firstName, lastName, emailAddress, password, zipCode, instrument, genre, admin, bio, socialLinks, profileimg } = req.body;
 
         const updatedUser = await UserModel.update({
             firstName,
@@ -138,6 +138,7 @@ router.put('/edit', validateSession, async(req, res)=>{
             admin,
             bio,
             socialLinks,
+            profileimg
             }, {where: {id: req.user.id}
         });
         res.status(200).json({
@@ -152,7 +153,7 @@ router.put('/edit', validateSession, async(req, res)=>{
 router.put('/edit/:id/admin', validateRole, async(req, res)=>{
     const { id } = req.params
     try {
-        const { firstName, lastName, emailAddress, password, zipCode, instrument, genre, admin, bio, socialLinks } = req.body;
+        const { firstName, lastName, emailAddress, password, zipCode, instrument, genre, admin, bio, socialLinks, profileimg } = req.body;
 
         const updatedUser = await UserModel.update({
             firstName,
@@ -165,6 +166,7 @@ router.put('/edit/:id/admin', validateRole, async(req, res)=>{
             admin,
             bio,
             socialLinks,
+            profileimg
             }, {where: {id: id}
         });
         res.status(200).json({
